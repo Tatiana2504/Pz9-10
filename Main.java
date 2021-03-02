@@ -1,9 +1,6 @@
 package com.metanit;
-class JThread extends Thread {
+class MyThread implements Runnable {
 
-    JThread(String name){
-        super(name);
-    }
 
     public void run(){
 
@@ -14,22 +11,16 @@ class JThread extends Thread {
         catch(InterruptedException e){
             System.out.println("Thread has been interrupted");
         }
-        System.out.printf("%s fiished... \n", Thread.currentThread().getName());
+        System.out.printf("%s finished... \n", Thread.currentThread().getName());
     }
 }
+
 public class Main {
 
     public static void main(String[] args) {
         System.out.println("Main thread started...");
-        JThread t= new JThread("JThread ");
-        t.start();
-        try{
-            t.join();
-        }
-        catch(InterruptedException e){
-
-            System.out.printf("%s has been interrupted", t.getName());
-        }
+        Thread myThread = new Thread(new MyThread(),"MyThread");
+        myThread.start();
         System.out.println("Main thread finished...");
     }
 }
