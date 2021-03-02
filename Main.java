@@ -1,15 +1,16 @@
 package com.metanit;
-class MyThread implements Runnable {
+class JThread extends Thread {
 
-
+    JThread(String name){
+        super(name);
+    }
     public void run(){
 
         System.out.printf("%s started... \n", Thread.currentThread().getName());
-        try{
-            Thread.sleep(500);
-        }
-        catch(InterruptedException e){
-            System.out.println("Thread has been interrupted");
+        int counter=1; // счетчик циклов
+        while(!isInterrupted()){
+
+            System.out.println("Loop " + counter++);
         }
         System.out.printf("%s finished... \n", Thread.currentThread().getName());
     }
@@ -19,18 +20,17 @@ public class Main {
 
     public static void main(String[] args) {
         System.out.println("Main thread started...");
-        Runnable r = ()->{
-            System.out.printf("%s started... \n", Thread.currentThread().getName());
-            try{
-                Thread.sleep(500);
-            }
-            catch(InterruptedException e){
-                System.out.println("Thread has been interrupted");
-            }
-            System.out.printf("%s finished... \n", Thread.currentThread().getName());
-        };
-        Thread myThread = new Thread(r,"MyThread");
-        myThread.start();
+        JThread t = new JThread("JThread");
+        t.start();
+        try{
+            Thread.sleep(150);
+            t.interrupt();
+
+            Thread.sleep(150);
+        }
+        catch(InterruptedException e){
+            System.out.println("Thread has been interrupted");
+        }
         System.out.println("Main thread finished...");
     }
 }
