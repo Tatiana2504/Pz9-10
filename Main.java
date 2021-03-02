@@ -1,54 +1,51 @@
 package com.metanit;
-import java.util.concurrent.Exchanger;
+import java.util.concurrent.Phaser;
 public class Main {
 
     public static void main(String[] args) {
-        Exchanger<String> ex = new Exchanger<String>();
-        new Thread(new PutThread(ex)).start();
-        new Thread(new GetThread(ex)).start();
+        Phaser phaser = new Phaser(1);
+        new Thread(new PhaseThread(phaser, "PhaseThread 1")).start();
+        new Thread(new PhaseThread(phaser, "PhaseThread 2")).start();
+
+        // ждем завершения фазы 0
+        int phase = phaser.getPhase();
+        phaser.arriveAndAwaitAdvance();
+        System.out.println("Фаза " + phase + " завершена");
+        // ждем завершения фазы 1
+        phase = phaser.getPhase();
+        phaser.arriveAndAwaitAdvance();
+        System.out.println("Фаза " + phase + " завершена");
+
+        // ждем завершения фазы 2
+        phase = phaser.getPhase();
+        phaser.arriveAndAwaitAdvance();
+        System.out.println("Фаза " + phase + " завершена");
+
+        phaser.arriveAndDeregister();
     }
 }
 
-class PutThread implements Runnable{
+class PhaseThread implements Runnable{
 
-    Exchanger<String> exchanger;
-    String message;
+    Phaser phaser;
+    String name;
 
-    PutThread(Exchanger<String> ex){
+    PhaseThread(Phaser p, String n){
 
-        this.exchanger=ex;
-        message = "Hello Java!";
+        this.phaser=p;
+        this.name=n;
+        phaser.register();
     }
     public void run(){
 
-        try{
-            message=exchanger.exchange(message);
-            System.out.println("PutThread has received: " + message);
-        }
-        catch(InterruptedException ex){
-            System.out.println(ex.getMessage());
-        }
-    }
-}
-class GetThread implements Runnable{
+        System.out.println(name + " выполняет фазу " + phaser.getPhase());
+        phaser.arriveAndAwaitAdvance(); // сообщаем, что первая фаза достигнута
 
-    Exchanger<String> exchanger;
-    String message;
+        System.out.println(name + " выполняет фазу " + phaser.getPhase());
+        phaser.arriveAndAwaitAdvance(); // сообщаем, что вторая фаза достигнута
 
-    GetThread(Exchanger<String> ex){
-
-        this.exchanger=ex;
-        message = "Hello World!";
-    }
-    public void run(){
-
-        try{
-            message=exchanger.exchange(message);
-            System.out.println("GetThread has received: " + message);
-        }
-        catch(InterruptedException ex){
-            System.out.println(ex.getMessage());
-        }
+        System.out.println(name + " выполняет фазу " + phaser.getPhase());
+        phaser.arriveAndDeregister(); // сообщаем о завершении фаз и удаляем с регистрации объекты
     }
 }
 
