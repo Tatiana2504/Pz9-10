@@ -21,8 +21,15 @@ public class Main {
 
     public static void main(String[] args) {
         System.out.println("Main thread started...");
-        for (int i = 1; i < 6; i++)
-            new JThread("JThread " + i).start();
+        JThread t= new JThread("JThread ");
+        t.start();
+        try{
+            t.join();
+        }
+        catch(InterruptedException e){
+
+            System.out.printf("%s has been interrupted", t.getName());
+        }
         System.out.println("Main thread finished...");
     }
 }
